@@ -1,3 +1,69 @@
+class NormalItem
+  def self.perform(item)
+    item.sell_in = adjust_sell_in(item)
+    item.quality = limit_quality(adjust_quality(item))
+  end
+
+  private
+  def self.adjust_sell_in(item)
+    item.sell_in - 1
+  end
+
+  def self.adjust_quality(item)
+    item.quality - ((item.sell_in < 0) ? 2 : 1)
+  end
+
+  def self.limit_quality(quality)
+    return 0 if quality < 0
+    return 50 if quality > 50
+    quality
+  end
+end
+
+class BrieItem < NormalItem
+  private
+  def self.adjust_quality(item)
+    item.quality + 1
+  end
+end
+
+class BackstagePassItem < NormalItem
+  private
+  def self.adjust_quality(item)
+
+    # Passes have no value after expiration
+    return 0 if item.sell_in < 0
+
+    # Passes increase in quality more quickly when the date approaches
+    if item.sell_in < 5
+      item.quality + 3
+    elsif item.sell_in >= 5  && item.sell_in < 10
+      item.quality + 2
+    else
+      item.quality + 1
+    end
+  end
+end
+
+class SulfurasItem < NormalItem
+  private
+
+  # Can always be sold
+  def self.adjust_sell_in(item)
+    item.sell_in
+  end
+
+  # Never loses quality
+  def self.adjust_quality(item)
+    item.quality
+  end
+
+  # Does not follow normal quality limits
+  def self.limit_quality(quality)
+    quality
+  end
+end
+
 class GildedRose
   def initialize(items)
     @items = items
@@ -5,50 +71,22 @@ class GildedRose
 
   def update_quality()
     @items.each do |item|
-      if item.name != "Aged Brie" and item.name != "Backstage Pass"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage Pass"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
-      end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
-        end
-      end
-      item.quality = 50 if item.quality > 50 && item.name != "Sulfuras, Hand of Ragnaros"
+      update_item_stats(item)
+    end
+  end
+
+  private
+
+  def update_item_stats(item)
+    case item.name
+    when 'Aged Brie'
+      return BrieItem.perform(item)
+    when 'Backstage Pass'
+      return BackstagePassItem.perform(item)
+    when 'Sulfuras, Hand of Ragnaros'
+      return SulfurasItem.perform(item)
+    else
+      return NormalItem.perform(item)
     end
   end
 end
