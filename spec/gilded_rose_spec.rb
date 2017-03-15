@@ -102,6 +102,14 @@ describe GildedRose do
         old_quality = quality
         new_quality = quality - 2
         expect { subject }.to change { items.first.quality }.from(old_quality).to(new_quality)
+        sell_in.times { @gilded_rose.update_quality }
+      end
+
+      it 'degrades twice as quickly when expired, too' do
+        sell_in.times { @gilded_rose.update_quality }
+        old_quality = quality - (sell_in * 2)
+        new_quality = quality - (sell_in * 2) - 4
+        expect { subject }.to change { items.first.quality }.from(old_quality).to(new_quality)
       end
     end
   end

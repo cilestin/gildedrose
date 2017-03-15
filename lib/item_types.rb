@@ -67,7 +67,7 @@ module ItemTypes
   # Loses quality twice as fast as normal items
   class Conjured < Normal
     def self.adjust_quality(item)
-      item.quality - 2
+      item.quality - (item.sell_in < 0 ? 4 : 2)
     end
   end
 end
