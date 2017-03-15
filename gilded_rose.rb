@@ -15,16 +15,17 @@ class GildedRose
   private
 
   def update_item_stats(item)
-    case item.name
-    when 'Aged Brie'
-      return ItemTypes::Brie.perform(item)
-    when 'Backstage Pass'
-      return ItemTypes::BackstagePass.perform(item)
-    when 'Sulfuras, Hand of Ragnaros'
-      return ItemTypes::Sulfuras.perform(item)
-    else
-      return ItemTypes::Normal.perform(item)
-    end
+    item_type_map(item.name).perform(item)
+  end
+
+  def item_type_map(item_name)
+    @item_type_map ||= {
+      'Aged Brie' => ItemTypes::Brie,
+      'Backstage Pass' => ItemTypes::BackstagePass,
+      'Sulfuras, Hand of Ragnaros' => ItemTypes::Sulfuras,
+      'Conjured' => ItemTypes::Conjured
+    }
+    @item_type_map.fetch(item_name, ItemTypes::Normal)
   end
 end
 

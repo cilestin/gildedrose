@@ -94,5 +94,15 @@ describe GildedRose do
         expect(subject.first.quality).to eq quality
       end
     end
+
+    context 'conjured' do
+      let(:items) { [Item.new('Conjured', sell_in, quality)] }
+
+      it 'degrades twice as quickly as normal items' do
+        old_quality = quality
+        new_quality = quality - 2
+        expect { subject }.to change { items.first.quality }.from(old_quality).to(new_quality)
+      end
+    end
   end
 end

@@ -6,8 +6,6 @@ module ItemTypes
       item.quality = limit_quality(adjust_quality(item))
     end
 
-    private
-
     def self.adjust_sell_in(item)
       item.sell_in - 1
     end
@@ -63,6 +61,13 @@ module ItemTypes
     # Does not follow normal quality limits
     def self.limit_quality(quality)
       quality
+    end
+  end
+
+  # Loses quality twice as fast as normal items
+  class Conjured < Normal
+    def self.adjust_quality(item)
+      item.quality - 2
     end
   end
 end
