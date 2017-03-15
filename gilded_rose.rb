@@ -1,75 +1,12 @@
-class NormalItem
-  def self.perform(item)
-    item.sell_in = adjust_sell_in(item)
-    item.quality = limit_quality(adjust_quality(item))
-  end
-
-  private
-  def self.adjust_sell_in(item)
-    item.sell_in - 1
-  end
-
-  def self.adjust_quality(item)
-    item.quality - ((item.sell_in < 0) ? 2 : 1)
-  end
-
-  def self.limit_quality(quality)
-    return 0 if quality < 0
-    return 50 if quality > 50
-    quality
-  end
-end
-
-class BrieItem < NormalItem
-  private
-  def self.adjust_quality(item)
-    item.quality + 1
-  end
-end
-
-class BackstagePassItem < NormalItem
-  private
-  def self.adjust_quality(item)
-
-    # Passes have no value after expiration
-    return 0 if item.sell_in < 0
-
-    # Passes increase in quality more quickly when the date approaches
-    if item.sell_in < 5
-      item.quality + 3
-    elsif item.sell_in >= 5  && item.sell_in < 10
-      item.quality + 2
-    else
-      item.quality + 1
-    end
-  end
-end
-
-class SulfurasItem < NormalItem
-  private
-
-  # Can always be sold
-  def self.adjust_sell_in(item)
-    item.sell_in
-  end
-
-  # Never loses quality
-  def self.adjust_quality(item)
-    item.quality
-  end
-
-  # Does not follow normal quality limits
-  def self.limit_quality(quality)
-    quality
-  end
-end
-
+# Defines the GuildedRose class
 class GildedRose
+  require './lib/item_types'
+
   def initialize(items)
     @items = items
   end
 
-  def update_quality()
+  def update_quality
     @items.each do |item|
       update_item_stats(item)
     end
@@ -80,17 +17,18 @@ class GildedRose
   def update_item_stats(item)
     case item.name
     when 'Aged Brie'
-      return BrieItem.perform(item)
+      return ItemTypes::Brie.perform(item)
     when 'Backstage Pass'
-      return BackstagePassItem.perform(item)
+      return ItemTypes::BackstagePass.perform(item)
     when 'Sulfuras, Hand of Ragnaros'
-      return SulfurasItem.perform(item)
+      return ItemTypes::Sulfuras.perform(item)
     else
-      return NormalItem.perform(item)
+      return ItemTypes::Normal.perform(item)
     end
   end
 end
 
+# rubocop:disable all
 class Item
   attr_accessor :name, :sell_in, :quality
 
@@ -104,3 +42,4 @@ class Item
     "#{@name}, #{@sell_in}, #{@quality}"
   end
 end
+# rubocop:enable all

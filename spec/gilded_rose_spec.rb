@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '../gilded_rose')
 
 describe GildedRose do
-  describe "#update_quality" do
+  describe '#update_quality' do
     let(:quality) { 25 }
     let(:sell_in) { 5 }
     let(:items) { [Item.new('Regular Item', sell_in, quality)] }
@@ -10,10 +10,10 @@ describe GildedRose do
       @gilded_rose = GildedRose.new(items)
     end
 
-    subject { @gilded_rose.update_quality() }
+    subject { @gilded_rose.update_quality }
 
-    it "does not change the name" do
-      expect(subject.first.name).to eq "Regular Item"
+    it 'does not change the name' do
+      expect(subject.first.name).to eq 'Regular Item'
     end
 
     context 'normal items' do
@@ -42,7 +42,7 @@ describe GildedRose do
       end
 
       it 'cannot have a quality higher than 50' do
-        results = GildedRose.new([Item.new('Expensive!', 5, 55)]).update_quality()
+        results = GildedRose.new([Item.new('Expensive!', 5, 55)]).update_quality
         expect(results.first.quality).to eq 50
       end
     end
@@ -58,7 +58,7 @@ describe GildedRose do
 
     context 'backstage pass' do
       let(:sell_in) { 11 }
-      let(:items) { [Item.new('Backstage Pass', sell_in, quality)]}
+      let(:items) { [Item.new('Backstage Pass', sell_in, quality)] }
 
       it 'increases in quality the older it gets' do
         new_quality = quality + 1
@@ -69,20 +69,22 @@ describe GildedRose do
         @gilded_rose.update_quality
         old_quality = items.first.quality
         new_quality = old_quality + 2
-        expect { subject }.to change {items.first.quality}.from(old_quality).to(new_quality)
+        expect { subject }.to change { items.first.quality }.from(old_quality).to(new_quality)
       end
 
       it 'quality adjustment triples when passes have 5 days left to sell' do
         items = [Item.new('Backstage Pass', 4, quality)]
         old_quality = items.first.quality
         new_quality = old_quality + 3
-        expect { GildedRose.new(items).update_quality }.to change {items.first.quality}.from(old_quality).to(new_quality)
+        expect { GildedRose.new(items).update_quality }.to change { items.first.quality }
+          .from(old_quality)
+          .to(new_quality)
       end
     end
 
     context 'sulfuras' do
       let(:quality) { 80 }
-      let(:items) { [Item.new('Sulfuras, Hand of Ragnaros', sell_in, quality)]}
+      let(:items) { [Item.new('Sulfuras, Hand of Ragnaros', sell_in, quality)] }
 
       it 'does not need to be sold' do
         expect(subject.first.sell_in).to eq sell_in
